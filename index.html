@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Para Estrellita 💝</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💌</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="sky" id="sky"></div>
+
+<main class="stage" id="stage">
+
+  <!-- ENVELOPE SCENE -->
+  <section class="scene envelope-scene" id="envelopeScene">
+    <p class="hint">Toca el sobre</p>
+    <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Abrir sobre">
+      <div class="envelope-shadow"></div>
+
+      <div class="letter-peek">
+        <div class="letter-peek-lines">
+          <span></span><span></span><span></span>
+        </div>
+        <div class="wax-seal">S<span class="amp">&amp;</span>E</div>
+      </div>
+
+      <div class="flap back-flap"></div>
+      <div class="body-bottom"></div>
+      <div class="flap side-flap left"></div>
+      <div class="flap side-flap right"></div>
+      <div class="flap front-flap"></div>
+
+      <div class="heart-lock">💕</div>
+    </div>
+    <p class="subhint">Para: Estrellita ⭐</p>
+  </section>
+
+  <!-- LETTER SCENE -->
+  <section class="scene letter-scene" id="letterScene">
+    <div class="letter-paper" id="letterPaper">
+      <button class="back-btn" id="backBtn" aria-label="Cerrar carta">✕</button>
+      <div class="paper-inner">
+        <p class="letter-line from-line">From: <b>Sp4rk</b> 🖤</p>
+        <p class="letter-line to-line">To: <b>Estrellita</b> ⭐</p>
+        <hr class="divider">
+        <div class="letter-body" id="letterBody"></div>
+        <div class="signature">
+          <span>Con todo mi cariño,</span>
+          <strong>Sp4rk 💝</strong>
+        </div>
+      </div>
+      <div class="floating-hearts" id="floatingHearts"></div>
+    </div>
+  </section>
+
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
