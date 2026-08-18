@@ -208,6 +208,7 @@ function openEnvelope() {
     letterScene.classList.add('visible');
     startTyping();
     startFloatingHearts();
+    updateScrollIndicators();   // sizes are only real once it's on screen
   }, 650);
 }
 
@@ -270,6 +271,58 @@ function stopFloatingHearts() {
   floatingHearts.innerHTML = '';
 }
 
+/* ============ SCROLL INDICATOR ============ */
+
+// iOS only shows scrollbars while a scroll is in flight, so the letter
+// looked like it had no more to read. This draws one that stays put.
+function attachScrollIndicator(inner) {
+  const face = inner.closest('.paper-face');
+  if (!face) return () => {};
+
+  const rail = document.createElement('div');
+  rail.className = 'scroll-rail';
+  const thumb = document.createElement('div');
+  thumb.className = 'scroll-thumb';
+  rail.appendChild(thumb);
+  face.appendChild(rail);
+
+  const update = () => {
+    const scrollable = inner.scrollHeight - inner.clientHeight;
+    if (scrollable <= 1) {
+      rail.classList.remove('active');
+      return;
+    }
+    rail.classList.add('active');
+    // match the rail to the scrolling region (the header height varies)
+    rail.style.top = inner.offsetTop + 8 + 'px';
+    rail.style.height = Math.max(0, inner.clientHeight - 16) + 'px';
+
+    const trackH = rail.clientHeight;
+    const thumbH = Math.max(30, trackH * (inner.clientHeight / inner.scrollHeight));
+    thumb.style.height = thumbH + 'px';
+    thumb.style.transform =
+      'translateY(' + (inner.scrollTop / scrollable) * (trackH - thumbH) + 'px)';
+  };
+
+  inner.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  // the letter grows while it types, which changes scrollHeight
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(update);
+    ro.observe(inner);
+    Array.from(inner.children).forEach((c) => ro.observe(c));
+  }
+  update();
+  return update;
+}
+
+const refreshScrollIndicators = Array.from(document.querySelectorAll('.paper-inner'))
+  .map(attachScrollIndicator);
+
+function updateScrollIndicators() {
+  refreshScrollIndicators.forEach((fn) => fn());
+}
+
 // Swap which face is interactive/visible at the midpoint of the rotation,
 // while the card is edge-on and the change can't be seen.
 const FLIP_MIDPOINT_MS = 275;
@@ -279,6 +332,7 @@ function showFace(back) {
   letterPaper.classList.toggle('flipped', back);
   faceSwapTimer = setTimeout(() => {
     letterPaper.classList.toggle('show-back', back);
+    updateScrollIndicators();   // the newly shown face has its own scroll state
   }, FLIP_MIDPOINT_MS);
 }
 

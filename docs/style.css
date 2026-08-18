@@ -627,29 +627,39 @@ body {
   z-index: 2;
   flex: 1;
   min-height: 0;
-  /* keep the gutter reserved so the text never shifts sideways when the
-     scrollbar comes and goes */
-  scrollbar-gutter: stable;
-  scrollbar-width: thin;
-  scrollbar-color: var(--rose-600) rgba(255, 194, 217, 0.45);
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;   /* momentum scrolling on iOS */
+  overscroll-behavior: contain;
+  /* Native scrollbars are overlay-only on iOS -- they can't be made to
+     stay visible. Hidden here, replaced by .scroll-rail below, which
+     looks and behaves the same on every platform. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+.paper-inner::-webkit-scrollbar { width: 0; height: 0; }
 
-.paper-inner::-webkit-scrollbar { width: 10px; }
-.paper-inner::-webkit-scrollbar-track {
-  background: rgba(255, 194, 217, 0.45);
+/* custom scrollbar: sits outside the scrolling box so it stays put */
+.scroll-rail {
+  position: absolute;
+  right: 11px;
+  width: 6px;
   border-radius: 999px;
-  margin: 4px 0;
+  background: rgba(255, 194, 217, 0.5);
+  z-index: 4;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
 }
-.paper-inner::-webkit-scrollbar-thumb {
+.scroll-rail.active { opacity: 1; }
+
+.scroll-thumb {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  border-radius: 999px;
   background: linear-gradient(180deg, var(--pink-400), var(--rose-600));
-  border-radius: 999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-  min-height: 34px;
-}
-.paper-inner::-webkit-scrollbar-thumb:hover {
-  background: var(--rose-700);
-  background-clip: padding-box;
+  box-shadow: 0 1px 4px rgba(196, 70, 110, 0.35);
+  will-change: transform;
 }
 
 /* the response side has no separate header, so it keeps the full padding */
