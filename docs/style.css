@@ -302,16 +302,20 @@ body {
   transform: translateY(0) scale(1);
   opacity: 1;
 }
-.letter-paper.flipped {
+/* These must stay at least as specific as the rule above, or the
+   base "visible" transform wins and the card never rotates. */
+.letter-scene.visible .letter-paper.flipped {
   transform: rotateY(180deg);
 }
-.letter-paper.sending {
+.letter-scene.visible .letter-paper.sending {
   transform: scale(0.15) translateY(-10px);
   opacity: 0;
   box-shadow: none;
 }
 .letter-scene.visible .letter-paper.flipped.sending {
   transform: rotateY(180deg) scale(0.15) translateY(-10px);
+  opacity: 0;
+  box-shadow: none;
 }
 
 .paper-face {
