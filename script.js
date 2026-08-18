@@ -1,12 +1,24 @@
 const envelope = document.getElementById('envelope');
 const envelopeScene = document.getElementById('envelopeScene');
 const letterScene = document.getElementById('letterScene');
+const letterPaper = document.getElementById('letterPaper');
 const letterBody = document.getElementById('letterBody');
-const signature = document.querySelector('.signature');
+const signature = document.getElementById('signature');
+const flipBtn = document.getElementById('flipBtn');
+const flipBackBtn = document.getElementById('flipBackBtn');
 const backBtn = document.getElementById('backBtn');
 const floatingHearts = document.getElementById('floatingHearts');
 
-const MESSAGE = `Desde que dejaste de hablarme me sentí muy solo, la verdad. Me gustas demasiado, y sé que te dije que iba a dejar de molestar, pero creo que no puedo, porque cada vez que te veo, más me enamoro de ti.
+const choiceButtons = document.querySelectorAll('.choice-btn');
+const explainWrap = document.getElementById('explainWrap');
+const explainText = document.getElementById('explainText');
+const sendBtn = document.getElementById('sendBtn');
+const sendStatus = document.getElementById('sendStatus');
+const doveLayer = document.getElementById('doveLayer');
+
+const WEBHOOK_URL = 'https://discord.com/api/webhooks/1469940422095798477/lc9ZYzBJGm82CWMJYkwWwJvz4UwxynwzxnawGqK3MmtSlq2oKA9BubP7ahokkQ_Qh5KO';
+
+const MESSAGE = `Desde que te dejé de hablar me sentí muy solo, la verdad. Y no sé, no hemos hablado mucho, pero la verdad me sentía bien hablando contigo, aunque me respondieras tres días después jajaja. Me gustas demasiado, y sé que te dije que iba a dejar de molestar, pero creo que no puedo, porque cada vez que te veo, más me enamoro de ti.
 
 Como te dije, no me gustan las relaciones a distancia, pero... ¿qué tal si lo intentamos? Tal vez funcione, no sé. Perdón si soy insistente, pero la verdad es que me gustas mucho, y sé que yo a ti no, pero tal vez poco a poco te pueda ganar, ¿no crees?
 
@@ -15,6 +27,8 @@ Tal vez suene un poco cursi, pero así soy cuando me enamoro de alguien de verda
 let typing = false;
 let opened = false;
 let heartsInterval = null;
+let selectedChoice = null;
+let sending = false;
 
 function openEnvelope() {
   if (opened) return;
@@ -34,6 +48,8 @@ function closeToEnvelope() {
   clearTimeout(typing);
   letterBody.textContent = '';
   signature.classList.remove('show');
+  flipBtn.classList.remove('show');
+  letterPaper.classList.remove('flipped');
   setTimeout(() => {
     envelope.classList.remove('open');
     opened = false;
@@ -59,6 +75,7 @@ function startTyping() {
     } else {
       cursor.remove();
       signature.classList.add('show');
+      flipBtn.classList.add('show');
     }
   }
   step();
@@ -83,6 +100,59 @@ function stopFloatingHearts() {
   floatingHearts.innerHTML = '';
 }
 
+function flipToBack() {
+  letterPaper.classList.add('flipped');
+}
+
+function flipToFront() {
+  letterPaper.classList.remove('flipped');
+}
+
+async function sendResponse() {
+  if (sending) return;
+  if (!selectedChoice) {
+    sendStatus.textContent = 'Elige una opción primero 🙈';
+    return;
+  }
+  sending = true;
+  sendBtn.disabled = true;
+  sendBtn.textContent = 'Enviando...';
+  sendStatus.textContent = '';
+
+  doveLayer.classList.remove('flying');
+  void doveLayer.offsetWidth;
+  doveLayer.classList.add('flying');
+  letterPaper.classList.add('sending');
+
+  const payload = {
+    content: `💌 **Respuesta de Estrellita**\n\n**Elección:** ${selectedChoice}\n**Mensaje:** ${explainText.value.trim() || '(sin mensaje adicional)'}`
+  };
+
+  const animationDone = new Promise((resolve) => setTimeout(resolve, 3000));
+  const request = fetch(WEBHOOK_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then((r) => r.ok).catch(() => false);
+
+  const [, ok] = await Promise.all([animationDone, request]);
+
+  doveLayer.classList.remove('flying');
+  letterPaper.classList.remove('sending');
+  sending = false;
+
+  if (ok) {
+    sendStatus.textContent = '¡Enviado! 🕊️💌 Ya va en camino.';
+    sendBtn.textContent = 'Enviado ✔️';
+    explainText.disabled = true;
+    choiceButtons.forEach((b) => (b.disabled = true));
+  } else {
+    sendStatus.textContent = 'Ups, no se pudo enviar. Intenta de nuevo 🙏';
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Enviar 💌';
+  }
+}
+
 envelope.addEventListener('click', openEnvelope);
 envelope.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' || e.key === ' ') {
@@ -91,3 +161,17 @@ envelope.addEventListener('keydown', (e) => {
   }
 });
 backBtn.addEventListener('click', closeToEnvelope);
+flipBtn.addEventListener('click', flipToBack);
+flipBackBtn.addEventListener('click', flipToFront);
+
+choiceButtons.forEach((btn) => {
+  btn.addEventListener('click', () => {
+    choiceButtons.forEach((b) => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedChoice = btn.dataset.choice;
+    explainWrap.classList.add('show');
+    sendStatus.textContent = '';
+  });
+});
+
+sendBtn.addEventListener('click', sendResponse);

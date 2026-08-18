@@ -42,19 +42,54 @@
 
   <!-- LETTER SCENE -->
   <section class="scene letter-scene" id="letterScene">
-    <div class="letter-paper" id="letterPaper">
-      <button class="back-btn" id="backBtn" aria-label="Cerrar carta">✕</button>
-      <div class="paper-inner">
-        <p class="letter-line from-line">From: <b>Sp4rk</b> 🖤</p>
-        <p class="letter-line to-line">To: <b>Estrellita</b> ⭐</p>
-        <hr class="divider">
-        <div class="letter-body" id="letterBody"></div>
-        <div class="signature">
-          <span>Con todo mi cariño,</span>
-          <strong>Sp4rk 💝</strong>
+    <button class="back-btn" id="backBtn" aria-label="Cerrar carta">✕</button>
+
+    <div class="flip-wrap">
+      <div class="letter-paper" id="letterPaper">
+
+        <div class="paper-face paper-front">
+          <div class="paper-inner">
+            <p class="letter-line from-line">From: <b>Sp4rk</b> 🖤</p>
+            <p class="letter-line to-line">To: <b>Estrellita</b> ⭐</p>
+            <hr class="divider">
+            <div class="letter-body" id="letterBody"></div>
+            <div class="signature" id="signature">
+              <span>Con todo mi cariño,</span>
+              <strong>Sp4rk 💝</strong>
+            </div>
+            <button class="flip-btn" id="flipBtn">Dar vuelta ↩️</button>
+          </div>
+          <div class="floating-hearts" id="floatingHearts"></div>
         </div>
+
+        <div class="paper-face paper-back">
+          <div class="paper-inner back-inner">
+            <button class="flip-btn flip-back" id="flipBackBtn">↩️ Volver a la carta</button>
+            <h3 class="back-title">¿Y tú qué dices? 🥺</h3>
+
+            <div class="choice-row" id="choiceRow">
+              <button class="choice-btn" type="button" data-choice="Sí 💖">Sí 💖</button>
+              <button class="choice-btn" type="button" data-choice="No">No</button>
+              <button class="choice-btn" type="button" data-choice="Necesito pensarlo 🤔">Necesito pensarlo 🤔</button>
+            </div>
+
+            <div class="explain-wrap" id="explainWrap">
+              <label for="explainText">Cuéntame más (opcional):</label>
+              <textarea id="explainText" rows="4" placeholder="Escribe aquí..."></textarea>
+              <button class="send-btn" id="sendBtn" type="button">Enviar 💌</button>
+              <p class="send-status" id="sendStatus"></p>
+            </div>
+          </div>
+        </div>
+
       </div>
-      <div class="floating-hearts" id="floatingHearts"></div>
+    </div>
+
+    <div class="dove-layer" id="doveLayer">
+      <div class="dove-rig">
+        <span class="carried-letter">💌</span>
+        <span class="dove">🕊️</span>
+      </div>
     </div>
   </section>
 
