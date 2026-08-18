@@ -29,6 +29,7 @@ let opened = false;
 let heartsInterval = null;
 let selectedChoice = null;
 let sending = false;
+let faceSwapTimer = null;
 
 function openEnvelope() {
   if (opened) return;
@@ -49,7 +50,8 @@ function closeToEnvelope() {
   letterBody.textContent = '';
   signature.classList.remove('show');
   flipBtn.classList.remove('show');
-  letterPaper.classList.remove('flipped');
+  clearTimeout(faceSwapTimer);
+  letterPaper.classList.remove('flipped', 'show-back');
   setTimeout(() => {
     envelope.classList.remove('open');
     opened = false;
@@ -100,12 +102,24 @@ function stopFloatingHearts() {
   floatingHearts.innerHTML = '';
 }
 
+// Swap which face is interactive/visible at the midpoint of the rotation,
+// while the card is edge-on and the change can't be seen.
+const FLIP_MIDPOINT_MS = 275;
+
+function showFace(back) {
+  clearTimeout(faceSwapTimer);
+  letterPaper.classList.toggle('flipped', back);
+  faceSwapTimer = setTimeout(() => {
+    letterPaper.classList.toggle('show-back', back);
+  }, FLIP_MIDPOINT_MS);
+}
+
 function flipToBack() {
-  letterPaper.classList.add('flipped');
+  showFace(true);
 }
 
 function flipToFront() {
-  letterPaper.classList.remove('flipped');
+  showFace(false);
 }
 
 async function sendResponse() {

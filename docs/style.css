@@ -296,6 +296,7 @@ body {
   transform: translateY(40px) scale(0.9);
   opacity: 0;
   transition: transform 0.55s cubic-bezier(.2,.8,.2,1.1), opacity 0.5s ease, box-shadow 0.4s ease;
+  -webkit-transform-style: preserve-3d; /* iOS flattens the 3D context without this */
   transform-style: preserve-3d;
 }
 .letter-scene.visible .letter-paper {
@@ -321,12 +322,25 @@ body {
 .paper-face {
   position: absolute;
   inset: 0;
+  -webkit-backface-visibility: hidden; /* iOS Safari ignores the unprefixed one */
   backface-visibility: hidden;
   border-radius: 14px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   background: var(--paper);
+}
+
+/* backface-visibility alone can't be trusted: the away-facing side still
+   captures taps (dead buttons on every browser) and iOS paints it mirrored
+   through the card. The visible face is swapped explicitly instead, toggled
+   by JS at the midpoint of the flip while the card is edge-on. No transition
+   here on purpose -- visibility is inherited, so a delayed transition leaves
+   children stale whenever it doesn't run. */
+.letter-paper:not(.show-back) .paper-back,
+.letter-paper.show-back .paper-front {
+  visibility: hidden;
+  pointer-events: none;
 }
 .paper-face::before {
   content: "";
