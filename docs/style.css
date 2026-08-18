@@ -622,15 +622,38 @@ body {
 
 .paper-inner {
   position: relative;
-  padding: 4px 36px 30px;
+  padding: 4px 30px 30px 36px;
   overflow-y: auto;
   z-index: 2;
   flex: 1;
   min-height: 0;
+  /* keep the gutter reserved so the text never shifts sideways when the
+     scrollbar comes and goes */
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rose-600) rgba(255, 194, 217, 0.45);
+}
+
+.paper-inner::-webkit-scrollbar { width: 10px; }
+.paper-inner::-webkit-scrollbar-track {
+  background: rgba(255, 194, 217, 0.45);
+  border-radius: 999px;
+  margin: 4px 0;
+}
+.paper-inner::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--pink-400), var(--rose-600));
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  min-height: 34px;
+}
+.paper-inner::-webkit-scrollbar-thumb:hover {
+  background: var(--rose-700);
+  background-clip: padding-box;
 }
 
 /* the response side has no separate header, so it keeps the full padding */
-.paper-inner.back-inner { padding: 46px 36px 30px; }
+.paper-inner.back-inner { padding: 46px 30px 30px 36px; }
 
 .letter-line {
   font-family: 'Great Vibes', cursive;
