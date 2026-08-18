@@ -103,11 +103,20 @@ function createYouTubePlayer() {
 window.onYouTubeIframeAPIReady = createYouTubePlayer;
 if (window.YT && window.YT.Player) createYouTubePlayer();
 
+// "Toca el [❚❚] para pausarla", with the icon drawn rather than spelled out.
+function setStatusWithIcon(before, icon, after) {
+  playerStatus.textContent = '';
+  const pill = document.createElement('span');
+  pill.className = 'status-icon';
+  pill.textContent = icon;
+  playerStatus.append(before, pill, after);
+}
+
 function markMusicReady() {
   if (music.ready) return;
   music.ready = true;
   playBtn.disabled = false;
-  playerStatus.textContent = 'Toca ▶ para escucharla';
+  setStatusWithIcon('Toca el ', '❚❚', ' para pausarla');
 }
 
 // The song should already be playing when she arrives. Browsers block
@@ -123,7 +132,6 @@ function tryAutoplay() {
 function armGestureStart() {
   if (music.gestureArmed) return;
   music.gestureArmed = true;
-  playerStatus.textContent = 'Toca la pantalla para la música 🎶';
 
   const start = () => {
     document.removeEventListener('pointerdown', start, true);
@@ -146,7 +154,8 @@ function setPlayingUI(isPlaying) {
   music.playing = isPlaying;
   player.classList.toggle('playing', isPlaying);
   playBtn.textContent = isPlaying ? '❚❚' : '▶';
-  playerStatus.textContent = isPlaying ? 'Sonando 🎶' : 'En pausa';
+  if (isPlaying) setStatusWithIcon('Toca el ', '❚❚', ' para pausarla');
+  else setStatusWithIcon('Toca el ', '▶', ' para escucharla');
 }
 
 function playMusic() {

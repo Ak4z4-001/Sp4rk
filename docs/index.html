@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=6">
+<link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
 
@@ -72,7 +72,8 @@
       <div class="letter-paper" id="letterPaper">
 
         <div class="paper-face paper-front">
-          <!-- graffiti heart sticker, drawn inline so it stays crisp -->
+          <!-- graffiti heart sticker, drawn inline so it stays crisp.
+               Lives above the header so scrolling text passes below it. -->
           <svg class="sticker" viewBox="0 0 110 115" aria-hidden="true">
             <g class="sticker-motion">
               <path d="M14 30 C10 22 12 14 19 9" />
@@ -93,10 +94,13 @@
             </g>
           </svg>
 
-          <div class="paper-inner">
+          <div class="paper-header">
             <p class="letter-line from-line">From: <b>Sp4rk</b> 🖤</p>
             <p class="letter-line to-line">To: <b>Estrellita</b> ⭐</p>
             <hr class="divider">
+          </div>
+
+          <div class="paper-inner">
             <div class="letter-body" id="letterBody"></div>
             <div class="signature" id="signature">
               <span>Con todo mi cariño,</span>
@@ -145,6 +149,6 @@
 <div class="yt-host" aria-hidden="true"><div id="ytPlayer"></div></div>
 
 <script src="https://www.youtube.com/iframe_api"></script>
-<script src="script.js?v=8"></script>
+<script src="script.js?v=9"></script>
 </body>
 </html>

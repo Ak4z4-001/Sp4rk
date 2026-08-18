@@ -288,6 +288,23 @@ body {
   color: var(--ink-soft);
   opacity: 0.85;
   min-height: 1em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 17px;
+  height: 15px;
+  padding: 0 4px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, var(--pink-400), var(--rose-600));
+  color: white;
+  font-size: 0.56rem;
+  line-height: 1;
 }
 
 @keyframes spinDisc {
@@ -531,7 +548,7 @@ body {
   right: 26px;
   width: 88px;
   height: auto;
-  z-index: 4;
+  z-index: 5;   /* above the header band */
   pointer-events: none;
   transform: rotate(9deg);
   filter: drop-shadow(0 4px 7px rgba(150, 40, 80, 0.28));
@@ -593,14 +610,27 @@ body {
 }
 .back-btn:hover { background: rgba(225,59,107,0.2); transform: rotate(90deg); }
 
+/* Header stays put; only the letter body below it scrolls, so the
+   sticker never ends up sitting on top of the text. */
+.paper-header {
+  position: relative;
+  flex-shrink: 0;
+  padding: 46px 36px 0;
+  background: var(--paper);
+  z-index: 3;
+}
+
 .paper-inner {
   position: relative;
-  padding: 46px 36px 30px;
+  padding: 4px 36px 30px;
   overflow-y: auto;
   z-index: 2;
   flex: 1;
   min-height: 0;
 }
+
+/* the response side has no separate header, so it keeps the full padding */
+.paper-inner.back-inner { padding: 46px 36px 30px; }
 
 .letter-line {
   font-family: 'Great Vibes', cursive;
