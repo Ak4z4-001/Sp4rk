@@ -16,6 +16,16 @@ const sendBtn = document.getElementById('sendBtn');
 const sendStatus = document.getElementById('sendStatus');
 const doveLayer = document.getElementById('doveLayer');
 
+const player = document.getElementById('player');
+const playBtn = document.getElementById('playBtn');
+const volumeSlider = document.getElementById('volumeSlider');
+const playerStatus = document.getElementById('playerStatus');
+
+// To use your own audio file instead of YouTube, drop it next to this
+// script and set LOCAL_AUDIO to its name, e.g. 'music.mp3'.
+const LOCAL_AUDIO = null;
+const YT_VIDEO_ID = 'znHE3ugGhnk';
+
 const WEBHOOK_URL = 'https://discord.com/api/webhooks/1469940422095798477/lc9ZYzBJGm82CWMJYkwWwJvz4UwxynwzxnawGqK3MmtSlq2oKA9BubP7ahokkQ_Qh5KO';
 
 const MESSAGE = `Desde que te dejé de hablar me sentí muy solo, la verdad. Y yo sé, que no hemos hablado mucho, pero la verdad me sentía bien hablando contigo, aunque me respondieras tres días después jajaja. Me gustas demasiado, y sé que te dije que iba a dejar de molestar, pero creo que no puedo, porque cada vez que te veo, más me enamoro de ti.
@@ -31,10 +41,114 @@ let selectedChoice = null;
 let sending = false;
 let faceSwapTimer = null;
 
+/* ============ MUSIC ============ */
+
+// One interface over either backend, so the UI code below doesn't care
+// which one is in use.
+const music = {
+  backend: null,   // 'audio' | 'yt'
+  el: null,
+  ready: false,
+  playing: false
+};
+
+function initMusic() {
+  if (LOCAL_AUDIO) {
+    const audio = new Audio(LOCAL_AUDIO);
+    audio.loop = true;
+    audio.volume = volumeSlider.value / 100;
+    audio.addEventListener('canplay', () => markMusicReady());
+    audio.addEventListener('play', () => setPlayingUI(true));
+    audio.addEventListener('pause', () => setPlayingUI(false));
+    audio.addEventListener('error', () => musicFailed('No se pudo cargar el audio'));
+    music.backend = 'audio';
+    music.el = audio;
+  }
+  // otherwise the YouTube API callback below takes over
+}
+
+// Called by the YouTube IFrame API once it has loaded.
+window.onYouTubeIframeAPIReady = function () {
+  if (LOCAL_AUDIO) return;
+  music.backend = 'yt';
+  music.el = new YT.Player('ytPlayer', {
+    videoId: YT_VIDEO_ID,
+    playerVars: {
+      autoplay: 0,
+      controls: 0,
+      playsinline: 1,   // iOS: keep it inline instead of going fullscreen
+      rel: 0,
+      modestbranding: 1
+    },
+    events: {
+      onReady: () => {
+        music.el.setVolume(Number(volumeSlider.value));
+        markMusicReady();
+      },
+      onStateChange: (e) => {
+        if (e.data === YT.PlayerState.PLAYING) setPlayingUI(true);
+        else if (e.data === YT.PlayerState.PAUSED) setPlayingUI(false);
+        else if (e.data === YT.PlayerState.ENDED) music.el.playVideo(); // loop
+      },
+      onError: () => musicFailed('Esta canción no se puede reproducir aquí')
+    }
+  });
+};
+
+function markMusicReady() {
+  if (music.ready) return;
+  music.ready = true;
+  playBtn.disabled = false;
+  playerStatus.textContent = 'Toca ▶ para escucharla';
+}
+
+function musicFailed(msg) {
+  music.ready = false;
+  playBtn.disabled = true;
+  playerStatus.textContent = msg;
+}
+
+function setPlayingUI(isPlaying) {
+  music.playing = isPlaying;
+  player.classList.toggle('playing', isPlaying);
+  playBtn.textContent = isPlaying ? '❚❚' : '▶';
+  playerStatus.textContent = isPlaying ? 'Sonando 🎶' : 'En pausa';
+}
+
+function playMusic() {
+  if (!music.ready) return;
+  if (music.backend === 'yt') music.el.playVideo();
+  else music.el.play().catch(() => {});
+}
+
+function pauseMusic() {
+  if (!music.ready) return;
+  if (music.backend === 'yt') music.el.pauseVideo();
+  else music.el.pause();
+}
+
+function toggleMusic() {
+  if (music.playing) pauseMusic();
+  else playMusic();
+}
+
+function setVolume(value) {
+  if (!music.el) return;
+  if (music.backend === 'yt') {
+    if (music.ready) music.el.setVolume(Number(value));
+  } else {
+    music.el.volume = value / 100;
+  }
+}
+
 function openEnvelope() {
   if (opened) return;
   opened = true;
   envelope.classList.add('open');
+
+  // Start the song on this tap: mobile browsers only allow audio to
+  // begin from a real user gesture, so it has to happen right here.
+  playMusic();
 
   setTimeout(() => {
     letterScene.classList.add('visible');
@@ -166,6 +280,15 @@ async function sendResponse() {
     sendBtn.textContent = 'Enviar 💌';
   }
 }
+
+playBtn.disabled = true;
+initMusic();
+
+playBtn.addEventListener('click', toggleMusic);
+volumeSlider.addEventListener('input', (e) => setVolume(e.target.value));
+
+// Keep taps on the player from reaching the envelope behind it.
+player.addEventListener('click', (e) => e.stopPropagation());
 
 envelope.addEventListener('click', openEnvelope);
 envelope.addEventListener('keydown', (e) => {

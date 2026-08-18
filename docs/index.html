@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
@@ -38,6 +38,30 @@
       <div class="heart-lock">💕</div>
     </div>
     <p class="subhint">Para: Estrellita ⭐</p>
+
+    <!-- MUSIC PLAYER -->
+    <div class="player" id="player">
+      <div class="turntable">
+        <div class="vinyl" id="vinyl">
+          <div class="vinyl-grooves"></div>
+          <div class="vinyl-label">💗</div>
+        </div>
+        <div class="tonearm"></div>
+      </div>
+
+      <div class="player-info">
+        <p class="track-title">Nuestra canción 🎶</p>
+        <div class="player-controls">
+          <button class="play-btn" id="playBtn" type="button" aria-label="Reproducir o pausar">▶</button>
+          <div class="volume-wrap">
+            <span class="vol-icon" aria-hidden="true">🔈</span>
+            <input class="volume-slider" id="volumeSlider" type="range"
+                   min="0" max="100" value="55" aria-label="Volumen">
+          </div>
+        </div>
+        <p class="player-status" id="playerStatus">Cargando...</p>
+      </div>
+    </div>
   </section>
 
   <!-- LETTER SCENE -->
@@ -95,6 +119,11 @@
 
 </main>
 
-<script src="script.js?v=4"></script>
+<!-- Audio host: YouTube's own player, kept offscreen so only the
+     turntable above is visible. Nothing is copied or re-hosted. -->
+<div class="yt-host" aria-hidden="true"><div id="ytPlayer"></div></div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script src="script.js?v=5"></script>
 </body>
 </html>
