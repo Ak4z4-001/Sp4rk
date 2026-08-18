@@ -49,7 +49,9 @@ const music = {
   backend: null,   // 'audio' | 'yt'
   el: null,
   ready: false,
-  playing: false
+  playing: false,
+  userPaused: false,   // she hit pause on purpose: never restart behind her
+  gestureArmed: false
 };
 
 function initMusic() {
@@ -57,7 +59,7 @@ function initMusic() {
     const audio = new Audio(LOCAL_AUDIO);
     audio.loop = true;
     audio.volume = volumeSlider.value / 100;
-    audio.addEventListener('canplay', () => markMusicReady());
+    audio.addEventListener('canplay', () => { markMusicReady(); tryAutoplay(); });
     audio.addEventListener('play', () => setPlayingUI(true));
     audio.addEventListener('pause', () => setPlayingUI(false));
     audio.addEventListener('error', () => musicFailed('No se pudo cargar el audio'));
@@ -67,14 +69,13 @@ function initMusic() {
   // otherwise the YouTube API callback below takes over
 }
 
-// Called by the YouTube IFrame API once it has loaded.
-window.onYouTubeIframeAPIReady = function () {
-  if (LOCAL_AUDIO) return;
+function createYouTubePlayer() {
+  if (LOCAL_AUDIO || music.backend === 'yt') return;
   music.backend = 'yt';
   music.el = new YT.Player('ytPlayer', {
     videoId: YT_VIDEO_ID,
     playerVars: {
-      autoplay: 0,
+      autoplay: 1,
       controls: 0,
       playsinline: 1,   // iOS: keep it inline instead of going fullscreen
       rel: 0,
@@ -84,6 +85,7 @@ window.onYouTubeIframeAPIReady = function () {
       onReady: () => {
         music.el.setVolume(Number(volumeSlider.value));
         markMusicReady();
+        tryAutoplay();
       },
       onStateChange: (e) => {
         if (e.data === YT.PlayerState.PLAYING) setPlayingUI(true);
@@ -93,13 +95,45 @@ window.onYouTubeIframeAPIReady = function () {
       onError: () => musicFailed('Esta canción no se puede reproducir aquí')
     }
   });
-};
+}
+
+// The API calls this hook when it finishes loading -- but if it already
+// finished before this file ran, that call is gone for good and the song
+// would silently never start. So claim it either way.
+window.onYouTubeIframeAPIReady = createYouTubePlayer;
+if (window.YT && window.YT.Player) createYouTubePlayer();
 
 function markMusicReady() {
   if (music.ready) return;
   music.ready = true;
   playBtn.disabled = false;
   playerStatus.textContent = 'Toca ▶ para escucharla';
+}
+
+// The song should already be playing when she arrives. Browsers block
+// audio that starts without a gesture, so: try immediately, and if the
+// browser refuses, start on the very first thing she touches.
+function tryAutoplay() {
+  playMusic();
+  setTimeout(() => {
+    if (!music.playing && !music.userPaused) armGestureStart();
+  }, 900);
+}
+
+function armGestureStart() {
+  if (music.gestureArmed) return;
+  music.gestureArmed = true;
+  playerStatus.textContent = 'Toca la pantalla para la música 🎶';
+
+  const start = () => {
+    document.removeEventListener('pointerdown', start, true);
+    document.removeEventListener('keydown', start, true);
+    music.gestureArmed = false;
+    if (!music.userPaused) playMusic();
+  };
+  // capture phase: fires even if something else stops the event
+  document.addEventListener('pointerdown', start, true);
+  document.addEventListener('keydown', start, true);
 }
 
 function musicFailed(msg) {
@@ -117,8 +151,14 @@ function setPlayingUI(isPlaying) {
 
 function playMusic() {
   if (!music.ready) return;
-  if (music.backend === 'yt') music.el.playVideo();
-  else music.el.play().catch(() => {});
+  if (music.backend === 'yt') {
+    music.el.playVideo();
+  } else {
+    // A rejected promise here means the browser blocked it.
+    music.el.play().catch(() => {
+      if (!music.userPaused) armGestureStart();
+    });
+  }
 }
 
 function pauseMusic() {
@@ -128,8 +168,13 @@ function pauseMusic() {
 }
 
 function toggleMusic() {
-  if (music.playing) pauseMusic();
-  else playMusic();
+  if (music.playing) {
+    music.userPaused = true;   // her choice wins from here on
+    pauseMusic();
+  } else {
+    music.userPaused = false;
+    playMusic();
+  }
 }
 
 function setVolume(value) {
@@ -146,9 +191,9 @@ function openEnvelope() {
   opened = true;
   envelope.classList.add('open');
 
-  // Start the song on this tap: mobile browsers only allow audio to
-  // begin from a real user gesture, so it has to happen right here.
-  playMusic();
+  // Belt and braces: if autoplay was blocked and the envelope is the
+  // first thing she touches, this tap is a valid gesture to start on.
+  if (!music.userPaused) playMusic();
 
   setTimeout(() => {
     letterScene.classList.add('visible');
