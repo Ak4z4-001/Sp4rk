@@ -359,6 +359,7 @@ body {
   overflow-y: auto;
   z-index: 2;
   flex: 1;
+  min-height: 0;
 }
 
 .letter-line {
@@ -438,11 +439,16 @@ body {
 
 .flip-btn {
   display: block;
-  margin: 30px auto 0;
-  padding: 10px 22px;
-  border: 2px solid var(--pink-200);
-  border-radius: 999px;
-  background: white;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 3;
+  margin: 0 auto;
+  padding: 12px 22px;
+  border: none;
+  border-top: 1.5px dashed var(--pink-200);
+  border-radius: 0 0 14px 14px;
+  width: 100%;
+  background: var(--paper);
   color: var(--rose-600);
   font-family: 'Quicksand', sans-serif;
   font-weight: 600;
@@ -450,18 +456,24 @@ body {
   cursor: pointer;
   opacity: 0;
   transform: translateY(8px);
+  pointer-events: none;
   transition: opacity 0.6s ease, transform 0.6s ease, background 0.2s ease, color 0.2s ease;
 }
-.flip-btn.show { opacity: 1; transform: translateY(0); }
-.flip-btn:hover { background: var(--rose-600); color: white; }
+.flip-btn.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.flip-btn:hover { background: var(--pink-50); color: var(--rose-700); }
 
 .flip-btn.flip-back {
   display: inline-block;
+  width: auto;
   margin: 0 0 14px;
   opacity: 1;
   transform: none;
+  pointer-events: auto;
   font-size: 0.85rem;
   padding: 8px 16px;
+  border: 2px solid var(--pink-200);
+  border-radius: 999px;
+  background: white;
 }
 
 .back-title {
