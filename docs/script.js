@@ -1,422 +1,236 @@
-const envelope = document.getElementById('envelope');
-const envelopeScene = document.getElementById('envelopeScene');
-const letterScene = document.getElementById('letterScene');
-const letterPaper = document.getElementById('letterPaper');
-const letterBody = document.getElementById('letterBody');
-const signature = document.getElementById('signature');
-const flipBtn = document.getElementById('flipBtn');
-const flipBackBtn = document.getElementById('flipBackBtn');
-const backBtn = document.getElementById('backBtn');
-const floatingHearts = document.getElementById('floatingHearts');
+const boy = document.getElementById('boy');
+const girl = document.getElementById('girl');
+const bubble = document.getElementById('bubble');
+const bubbleText = document.getElementById('bubbleText');
+const bubbleBtns = document.getElementById('bubbleBtns');
+const acceptBtn = document.getElementById('acceptBtn');
+const rejectBtn = document.getElementById('rejectBtn');
+const confetti = document.getElementById('confetti');
+const ending = document.getElementById('ending');
 
-const choiceButtons = document.querySelectorAll('.choice-btn');
-const explainWrap = document.getElementById('explainWrap');
-const explainText = document.getElementById('explainText');
-const sendBtn = document.getElementById('sendBtn');
-const sendStatus = document.getElementById('sendStatus');
-const doveLayer = document.getElementById('doveLayer');
+let answered = false;
 
-const player = document.getElementById('player');
-const playBtn = document.getElementById('playBtn');
-const volumeSlider = document.getElementById('volumeSlider');
-const playerStatus = document.getElementById('playerStatus');
+/* ============ BACKGROUND: STARS ============ */
 
-// To use your own audio file instead of YouTube, drop it next to this
-// script and set LOCAL_AUDIO to its name, e.g. 'music.mp3'.
-const LOCAL_AUDIO = null;
-const YT_VIDEO_ID = 'znHE3ugGhnk';
-
-const WEBHOOK_URL = 'https://discord.com/api/webhooks/1469940422095798477/lc9ZYzBJGm82CWMJYkwWwJvz4UwxynwzxnawGqK3MmtSlq2oKA9BubP7ahokkQ_Qh5KO';
-
-const MESSAGE = `Desde que te dejé de hablar me sentí muy solo, la verdad. Y yo sé, que no hemos hablado mucho, pero la verdad me sentía bien hablando contigo, aunque me respondieras tres días después jajaja. Me gustas demasiado, y sé que te dije que iba a dejar de molestar, pero creo que no puedo, porque cada vez que te veo, más me enamoro de ti.
-
-Como te dije, no me gustan las relaciones a distancia, pero... ¿qué tal si lo intentamos? Tal vez funcione, no sé. Perdón si soy insistente, pero la verdad es que me gustas mucho, y sé que yo a ti no, pero tal vez poco a poco te pueda ganar, ¿no crees?
-
-Tal vez suene un poco cursi, pero así soy cuando me enamoro de alguien de verdad. Y de ti me enamoré mucho más de lo que había pensado.`;
-
-let typing = false;
-let opened = false;
-let heartsInterval = null;
-let selectedChoice = null;
-let sending = false;
-let faceSwapTimer = null;
-
-/* ============ MUSIC ============ */
-
-// One interface over either backend, so the UI code below doesn't care
-// which one is in use.
-const music = {
-  backend: null,   // 'audio' | 'yt'
-  el: null,
-  ready: false,
-  playing: false,
-  userPaused: false,   // she hit pause on purpose: never restart behind her
-  gestureArmed: false
-};
-
-function initMusic() {
-  if (LOCAL_AUDIO) {
-    const audio = new Audio(LOCAL_AUDIO);
-    audio.loop = true;
-    audio.volume = volumeSlider.value / 100;
-    audio.addEventListener('canplay', () => { markMusicReady(); tryAutoplay(); });
-    audio.addEventListener('play', () => setPlayingUI(true));
-    audio.addEventListener('pause', () => setPlayingUI(false));
-    audio.addEventListener('error', () => musicFailed('No se pudo cargar el audio'));
-    music.backend = 'audio';
-    music.el = audio;
+function buildStars(count) {
+  const sky = document.getElementById('stars');
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement('i');
+    const size = Math.random() < 0.78 ? 2 : 3;   // chunky, like real pixel art
+    s.style.width = size + 'px';
+    s.style.height = size + 'px';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.animationDelay = (Math.random() * 3.4).toFixed(2) + 's';
+    s.style.opacity = (0.25 + Math.random() * 0.6).toFixed(2);
+    frag.appendChild(s);
   }
-  // otherwise the YouTube API callback below takes over
+  sky.appendChild(frag);
 }
 
-function createYouTubePlayer() {
-  if (LOCAL_AUDIO || music.backend === 'yt') return;
-  music.backend = 'yt';
-  music.el = new YT.Player('ytPlayer', {
-    videoId: YT_VIDEO_ID,
-    playerVars: {
-      autoplay: 1,
-      controls: 0,
-      playsinline: 1,   // iOS: keep it inline instead of going fullscreen
-      rel: 0,
-      modestbranding: 1
-    },
-    events: {
-      onReady: () => {
-        music.el.setVolume(Number(volumeSlider.value));
-        markMusicReady();
-        tryAutoplay();
-      },
-      onStateChange: (e) => {
-        if (e.data === YT.PlayerState.PLAYING) setPlayingUI(true);
-        else if (e.data === YT.PlayerState.PAUSED) setPlayingUI(false);
-        else if (e.data === YT.PlayerState.ENDED) music.el.playVideo(); // loop
-      },
-      onError: () => musicFailed('Esta canción no se puede reproducir aquí')
+/* ============ BACKGROUND: CLOUDS ============ */
+
+// Blocky clouds built from rectangles so they read as pixel art.
+function cloudShape(x, y, scale, colour) {
+  const b = 8 * scale;   // one "pixel" block
+  const blocks = [
+    [1, 1, 4, 1], [0, 2, 7, 1], [1, 3, 8, 1], [3, 0, 3, 1],
+    [0, 3, 1, 1], [5, 2, 4, 1], [2, 4, 6, 1]
+  ];
+  return blocks
+    .map(([bx, by, bw, bh]) =>
+      `<rect x="${x + bx * b}" y="${y + by * b}" width="${bw * b}" height="${bh * b}" fill="${colour}"/>`)
+    .join('');
+}
+
+function buildCloudLayer(el, { count, scale, colour, height }) {
+  // one strip, rendered twice, so translateX(-50%) loops seamlessly
+  const width = 1200;
+  let shapes = '';
+  for (let i = 0; i < count; i++) {
+    const x = (i / count) * width + Math.random() * 60;
+    const y = Math.random() * (height - 40 * scale);
+    shapes += cloudShape(x, y, scale * (0.75 + Math.random() * 0.6), colour);
+  }
+  const svg =
+    `<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg"
+          shape-rendering="crispEdges" preserveAspectRatio="none">${shapes}</svg>`;
+  el.innerHTML = svg + svg;
+}
+
+/* ============ BACKGROUND: BIRDS ============ */
+
+function buildBirds(count) {
+  const layer = document.getElementById('birds');
+  for (let i = 0; i < count; i++) {
+    const bird = document.createElement('div');
+    bird.className = 'bird';
+    bird.style.top = (8 + Math.random() * 46) + '%';
+    bird.style.animationDuration = (16 + Math.random() * 16).toFixed(1) + 's';
+    bird.style.animationDelay = (-Math.random() * 30).toFixed(1) + 's';
+    const s = (0.7 + Math.random() * 0.7).toFixed(2);
+    bird.style.scale = s;
+    bird.style.opacity = 0.55 + Math.random() * 0.4;
+    bird.innerHTML =
+      `<svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+         <rect x="0" y="4" width="3" height="2" fill="#dbe6ff"/>
+         <rect x="3" y="2" width="3" height="2" fill="#dbe6ff"/>
+         <rect x="6" y="4" width="3" height="2" fill="#dbe6ff"/>
+         <rect x="9" y="2" width="3" height="2" fill="#dbe6ff"/>
+         <rect x="12" y="4" width="3" height="2" fill="#dbe6ff"/>
+       </svg>`;
+    layer.appendChild(bird);
+  }
+}
+
+/* ============ BACKGROUND: FLOWER FIELD ============ */
+
+function buildField(rows) {
+  const field = document.getElementById('field');
+  const frag = document.createDocumentFragment();
+
+  rows.forEach(({ count, bottom, spread, scale, petal, stem, opacity }) => {
+    for (let i = 0; i < count; i++) {
+      const f = document.createElement('div');
+      f.className = 'flower';
+      f.style.left = (Math.random() * 102 - 1) + '%';
+      f.style.bottom = (bottom + Math.random() * spread) + '%';
+      f.style.opacity = opacity;
+      f.style.animationDelay = (-Math.random() * 3.6).toFixed(2) + 's';
+      f.style.animationDuration = (3 + Math.random() * 2).toFixed(2) + 's';
+      const px = scale;
+      f.innerHTML =
+        `<svg width="${7 * px}" height="${9 * px}" viewBox="0 0 7 9"
+              xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+           <rect x="3" y="4" width="1" height="5" fill="${stem}"/>
+           <rect x="2" y="1" width="3" height="3" fill="${petal}"/>
+           <rect x="1" y="2" width="1" height="1" fill="${petal}"/>
+           <rect x="5" y="2" width="1" height="1" fill="${petal}"/>
+           <rect x="3" y="0" width="1" height="1" fill="${petal}"/>
+           <rect x="3" y="2" width="1" height="1" fill="#f7fbff"/>
+         </svg>`;
+      frag.appendChild(f);
     }
+  });
+  field.appendChild(frag);
+}
+
+/* ============ MISSING SPRITE FALLBACK ============ */
+
+// Until the four PNGs are dropped into docs/img/, show a labelled box
+// so the layout is still visible instead of a broken-image icon.
+function handleMissingSprite(img) {
+  img.addEventListener('error', () => {
+    if (img.dataset.placeholder === 'on') return;
+    img.dataset.placeholder = 'on';
+    img.classList.add('missing');
+    const name = (img.getAttribute('src') || '').split('/').pop();
+    img.src =
+      'data:image/svg+xml;utf8,' + encodeURIComponent(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="340">
+           <rect width="100%" height="100%" fill="rgba(255,255,255,0.05)"/>
+           <text x="50%" y="46%" fill="#dce8ff" font-size="15"
+                 font-family="monospace" text-anchor="middle">falta</text>
+           <text x="50%" y="56%" fill="#dce8ff" font-size="11"
+                 font-family="monospace" text-anchor="middle">${name}</text>
+         </svg>`);
   });
 }
 
-// The API calls this hook when it finishes loading -- but if it already
-// finished before this file ran, that call is gone for good and the song
-// would silently never start. So claim it either way.
-window.onYouTubeIframeAPIReady = createYouTubePlayer;
-if (window.YT && window.YT.Player) createYouTubePlayer();
+/* ============ THE ANSWER ============ */
 
-// "Toca el [❚❚] para pausarla", with the icon drawn rather than spelled out.
-function setStatusWithIcon(before, icon, after) {
-  playerStatus.textContent = '';
-  const pill = document.createElement('span');
-  pill.className = 'status-icon';
-  pill.textContent = icon;
-  playerStatus.append(before, pill, after);
-}
-
-function markMusicReady() {
-  if (music.ready) return;
-  music.ready = true;
-  playBtn.disabled = false;
-  setStatusWithIcon('Toca el ', '❚❚', ' para pausarla');
-}
-
-// The song should already be playing when she arrives. Browsers block
-// audio that starts without a gesture, so: try immediately, and if the
-// browser refuses, start on the very first thing she touches.
-function tryAutoplay() {
-  playMusic();
+function swapSprite(img, newSrc, extraClass) {
+  img.classList.add('swap-out');
   setTimeout(() => {
-    if (!music.playing && !music.userPaused) armGestureStart();
-  }, 900);
+    // let the fallback arm again: the new file may be missing too
+    delete img.dataset.placeholder;
+    img.classList.remove('missing');
+    img.src = newSrc;
+    img.classList.remove('swap-out');
+    if (extraClass) img.classList.add(extraClass);
+  }, 260);
 }
 
-function armGestureStart() {
-  if (music.gestureArmed) return;
-  music.gestureArmed = true;
+function acceptFlowers() {
+  if (answered) return;
+  answered = true;
 
-  const start = () => {
-    document.removeEventListener('pointerdown', start, true);
-    document.removeEventListener('keydown', start, true);
-    music.gestureArmed = false;
-    if (!music.userPaused) playMusic();
-  };
-  // capture phase: fires even if something else stops the event
-  document.addEventListener('pointerdown', start, true);
-  document.addEventListener('keydown', start, true);
-}
+  bubble.classList.add('gone');
 
-function musicFailed(msg) {
-  music.ready = false;
-  playBtn.disabled = true;
-  playerStatus.textContent = msg;
-}
+  // she takes them, he gets up -- his hands are empty now
+  setTimeout(() => swapSprite(girl, girl.dataset.flowers, 'took-em'), 180);
+  setTimeout(() => swapSprite(boy, boy.dataset.standing, 'stood-up'), 520);
 
-function setPlayingUI(isPlaying) {
-  music.playing = isPlaying;
-  player.classList.toggle('playing', isPlaying);
-  playBtn.textContent = isPlaying ? '❚❚' : '▶';
-  if (isPlaying) setStatusWithIcon('Toca el ', '❚❚', ' para pausarla');
-  else setStatusWithIcon('Toca el ', '▶', ' para escucharla');
-}
-
-function playMusic() {
-  if (!music.ready) return;
-  if (music.backend === 'yt') {
-    music.el.playVideo();
-  } else {
-    // A rejected promise here means the browser blocked it.
-    music.el.play().catch(() => {
-      if (!music.userPaused) armGestureStart();
-    });
-  }
-}
-
-function pauseMusic() {
-  if (!music.ready) return;
-  if (music.backend === 'yt') music.el.pauseVideo();
-  else music.el.pause();
-}
-
-function toggleMusic() {
-  if (music.playing) {
-    music.userPaused = true;   // her choice wins from here on
-    pauseMusic();
-  } else {
-    music.userPaused = false;
-    playMusic();
-  }
-}
-
-function setVolume(value) {
-  if (!music.el) return;
-  if (music.backend === 'yt') {
-    if (music.ready) music.el.setVolume(Number(value));
-  } else {
-    music.el.volume = value / 100;
-  }
-}
-
-function openEnvelope() {
-  if (opened) return;
-  opened = true;
-  envelope.classList.add('open');
-
-  // Belt and braces: if autoplay was blocked and the envelope is the
-  // first thing she touches, this tap is a valid gesture to start on.
-  if (!music.userPaused) playMusic();
+  rain(['🌹', '🌷', '💕', '💖', '✨'], 34, 190);
 
   setTimeout(() => {
-    letterScene.classList.add('visible');
-    startTyping();
-    startFloatingHearts();
-    updateScrollIndicators();   // sizes are only real once it's on screen
-  }, 650);
+    ending.textContent = 'Son tuyas, Estrellita 🌹💝';
+    ending.classList.add('show');
+  }, 1250);
 }
 
-function closeToEnvelope() {
-  letterScene.classList.remove('visible');
-  stopFloatingHearts();
-  clearTimeout(typing);
-  letterBody.textContent = '';
-  signature.classList.remove('show');
-  flipBtn.classList.remove('show');
-  clearTimeout(faceSwapTimer);
-  letterPaper.classList.remove('flipped', 'show-back');
-  setTimeout(() => {
-    envelope.classList.remove('open');
-    opened = false;
-  }, 300);
-}
+function rejectFlowers() {
+  // Not final: she can still change her mind, so `answered` stays false.
+  bubbleText.innerHTML = '¿Segura? 🥺<br>las escogí<br>para ti';
+  bubbleBtns.innerHTML = '';
 
-function startTyping() {
-  letterBody.textContent = '';
-  const cursor = document.createElement('span');
-  cursor.className = 'cursor';
-  letterBody.appendChild(cursor);
+  const again = document.createElement('button');
+  again.className = 'pix-btn accept';
+  again.type = 'button';
+  again.textContent = 'Bueno, ya 🌹';
+  again.addEventListener('click', acceptFlowers);
 
-  let i = 0;
-  const speed = 28;
-
-  function step() {
-    if (i < MESSAGE.length) {
-      cursor.insertAdjacentText('beforebegin', MESSAGE[i]);
-      i++;
-      const ch = MESSAGE[i - 1];
-      const pause = (ch === '.' || ch === ',' || ch === '\n') ? speed * 6 : speed;
-      typing = setTimeout(step, pause);
-    } else {
-      cursor.remove();
-      signature.classList.add('show');
-      flipBtn.classList.add('show');
-    }
-  }
-  step();
-}
-
-function startFloatingHearts() {
-  const hearts = ['💕', '💖', '💗', '💝', '⭐'];
-  heartsInterval = setInterval(() => {
-    const span = document.createElement('span');
-    span.textContent = hearts[Math.floor(Math.random() * hearts.length)];
-    span.style.left = Math.random() * 90 + '%';
-    const duration = 4 + Math.random() * 3;
-    span.style.animationDuration = duration + 's';
-    span.style.fontSize = (0.9 + Math.random() * 0.9) + 'rem';
-    floatingHearts.appendChild(span);
-    setTimeout(() => span.remove(), duration * 1000);
-  }, 700);
-}
-
-function stopFloatingHearts() {
-  clearInterval(heartsInterval);
-  floatingHearts.innerHTML = '';
-}
-
-/* ============ SCROLL INDICATOR ============ */
-
-// iOS only shows scrollbars while a scroll is in flight, so the letter
-// looked like it had no more to read. This draws one that stays put.
-function attachScrollIndicator(inner) {
-  const face = inner.closest('.paper-face');
-  if (!face) return () => {};
-
-  const rail = document.createElement('div');
-  rail.className = 'scroll-rail';
-  const thumb = document.createElement('div');
-  thumb.className = 'scroll-thumb';
-  rail.appendChild(thumb);
-  face.appendChild(rail);
-
-  const update = () => {
-    const scrollable = inner.scrollHeight - inner.clientHeight;
-    if (scrollable <= 1) {
-      rail.classList.remove('active');
-      return;
-    }
-    rail.classList.add('active');
-    // match the rail to the scrolling region (the header height varies)
-    rail.style.top = inner.offsetTop + 8 + 'px';
-    rail.style.height = Math.max(0, inner.clientHeight - 16) + 'px';
-
-    const trackH = rail.clientHeight;
-    const thumbH = Math.max(30, trackH * (inner.clientHeight / inner.scrollHeight));
-    thumb.style.height = thumbH + 'px';
-    thumb.style.transform =
-      'translateY(' + (inner.scrollTop / scrollable) * (trackH - thumbH) + 'px)';
-  };
-
-  inner.addEventListener('scroll', update, { passive: true });
-  window.addEventListener('resize', update);
-  // the letter grows while it types, which changes scrollHeight
-  if (window.ResizeObserver) {
-    const ro = new ResizeObserver(update);
-    ro.observe(inner);
-    Array.from(inner.children).forEach((c) => ro.observe(c));
-  }
-  update();
-  return update;
-}
-
-const refreshScrollIndicators = Array.from(document.querySelectorAll('.paper-inner'))
-  .map(attachScrollIndicator);
-
-function updateScrollIndicators() {
-  refreshScrollIndicators.forEach((fn) => fn());
-}
-
-// Swap which face is interactive/visible at the midpoint of the rotation,
-// while the card is edge-on and the change can't be seen.
-const FLIP_MIDPOINT_MS = 275;
-
-function showFace(back) {
-  clearTimeout(faceSwapTimer);
-  letterPaper.classList.toggle('flipped', back);
-  faceSwapTimer = setTimeout(() => {
-    letterPaper.classList.toggle('show-back', back);
-    updateScrollIndicators();   // the newly shown face has its own scroll state
-  }, FLIP_MIDPOINT_MS);
-}
-
-function flipToBack() {
-  showFace(true);
-}
-
-function flipToFront() {
-  showFace(false);
-}
-
-async function sendResponse() {
-  if (sending) return;
-  if (!selectedChoice) {
-    sendStatus.textContent = 'Elige una opción primero 🙈';
-    return;
-  }
-  sending = true;
-  sendBtn.disabled = true;
-  sendBtn.textContent = 'Enviando...';
-  sendStatus.textContent = '';
-
-  doveLayer.classList.remove('flying');
-  void doveLayer.offsetWidth;
-  doveLayer.classList.add('flying');
-  letterPaper.classList.add('sending');
-
-  const payload = {
-    content: `💌 **Respuesta de Estrellita**\n\n**Elección:** ${selectedChoice}\n**Mensaje:** ${explainText.value.trim() || '(sin mensaje adicional)'}`
-  };
-
-  const animationDone = new Promise((resolve) => setTimeout(resolve, 3000));
-  const request = fetch(WEBHOOK_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  }).then((r) => r.ok).catch(() => false);
-
-  const [, ok] = await Promise.all([animationDone, request]);
-
-  doveLayer.classList.remove('flying');
-  letterPaper.classList.remove('sending');
-  sending = false;
-
-  if (ok) {
-    sendStatus.textContent = '¡Enviado! 🕊️💌 Ya va en camino.';
-    sendBtn.textContent = 'Enviado ✔️';
-    explainText.disabled = true;
-    choiceButtons.forEach((b) => (b.disabled = true));
-  } else {
-    sendStatus.textContent = 'Ups, no se pudo enviar. Intenta de nuevo 🙏';
-    sendBtn.disabled = false;
-    sendBtn.textContent = 'Enviar 💌';
-  }
-}
-
-playBtn.disabled = true;
-initMusic();
-
-playBtn.addEventListener('click', toggleMusic);
-volumeSlider.addEventListener('input', (e) => setVolume(e.target.value));
-
-// Keep taps on the player from reaching the envelope behind it.
-player.addEventListener('click', (e) => e.stopPropagation());
-
-envelope.addEventListener('click', openEnvelope);
-envelope.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault();
-    openEnvelope();
-  }
-});
-backBtn.addEventListener('click', closeToEnvelope);
-flipBtn.addEventListener('click', flipToBack);
-flipBackBtn.addEventListener('click', flipToFront);
-
-choiceButtons.forEach((btn) => {
-  btn.addEventListener('click', () => {
-    choiceButtons.forEach((b) => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    selectedChoice = btn.dataset.choice;
-    explainWrap.classList.add('show');
-    sendStatus.textContent = '';
+  const stay = document.createElement('button');
+  stay.className = 'pix-btn reject';
+  stay.type = 'button';
+  stay.textContent = 'De verdad no';
+  stay.addEventListener('click', () => {
+    if (answered) return;
+    answered = true;
+    bubble.classList.add('gone');
+    ending.textContent = 'Aquí te espero, sin prisa 🌙';
+    ending.classList.add('show');
   });
-});
 
-sendBtn.addEventListener('click', sendResponse);
+  bubbleBtns.append(again, stay);
+}
+
+function rain(chars, count, gap) {
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const s = document.createElement('span');
+      s.textContent = chars[Math.floor(Math.random() * chars.length)];
+      s.style.left = Math.random() * 96 + '%';
+      const dur = 3 + Math.random() * 2.6;
+      s.style.animationDuration = dur + 's';
+      s.style.fontSize = (0.9 + Math.random() * 1.1).toFixed(2) + 'rem';
+      confetti.appendChild(s);
+      setTimeout(() => s.remove(), dur * 1000);
+    }, i * gap);
+  }
+}
+
+/* ============ BOOT ============ */
+
+buildStars(90);
+
+buildCloudLayer(document.getElementById('cloudFar'),
+  { count: 5, scale: 1.5, colour: '#7f97c9', height: 150 });
+buildCloudLayer(document.getElementById('cloudMid'),
+  { count: 4, scale: 2.1, colour: '#a2b6de', height: 170 });
+buildCloudLayer(document.getElementById('cloudNear'),
+  { count: 3, scale: 2.9, colour: '#c4d3f0', height: 190 });
+
+buildBirds(6);
+
+buildField([
+  { count: 60, bottom: 62, spread: 30, scale: 2,   petal: '#9fb4dd', stem: '#1d3358', opacity: 0.55 },
+  { count: 70, bottom: 34, spread: 30, scale: 3,   petal: '#c3d3f0', stem: '#22406b', opacity: 0.8 },
+  { count: 55, bottom: 2,  spread: 34, scale: 4.5, petal: '#e4ecfd', stem: '#2a4a6b', opacity: 1 }
+]);
+
+[boy, girl].forEach(handleMissingSprite);
+
+acceptBtn.addEventListener('click', acceptFlowers);
+rejectBtn.addEventListener('click', rejectFlowers);

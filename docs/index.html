@@ -3,152 +3,87 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-<title>Para Estrellita 💝</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💌</text></svg>">
+<title>Para Estrellita 🌹</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌹</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=11">
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
-<div class="sky" id="sky"></div>
+<main class="world" id="world">
 
-<main class="stage" id="stage">
+  <!-- ============ ANIMATED PIXEL BACKGROUND ============ -->
+  <div class="sky"></div>
+  <div class="stars" id="stars"></div>
 
-  <!-- ENVELOPE SCENE -->
-  <section class="scene envelope-scene" id="envelopeScene">
-    <p class="hint">Toca el sobre</p>
-    <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Abrir sobre">
-      <div class="envelope-shadow"></div>
+  <div class="moon">
+    <div class="moon-glow"></div>
+    <div class="moon-body"></div>
+  </div>
 
-      <div class="letter-peek">
-        <div class="letter-peek-lines">
-          <span></span><span></span><span></span>
-        </div>
-        <div class="wax-seal">S<span class="amp">&amp;</span>E</div>
-      </div>
+  <!-- three drifting cloud layers, back to front -->
+  <div class="cloud-layer layer-far"  id="cloudFar"></div>
+  <div class="cloud-layer layer-mid"  id="cloudMid"></div>
+  <div class="cloud-layer layer-near" id="cloudNear"></div>
 
-      <div class="flap back-flap"></div>
-      <div class="body-bottom"></div>
-      <div class="flap side-flap left"></div>
-      <div class="flap side-flap right"></div>
-      <div class="flap front-flap"></div>
+  <div class="birds" id="birds"></div>
 
-      <div class="heart-lock">💕</div>
+  <div class="hills">
+    <div class="hill hill-back"></div>
+    <div class="hill hill-front"></div>
+  </div>
+
+  <div class="field" id="field"></div>
+
+  <!-- ============ CHARACTERS ============ -->
+  <div class="scene">
+
+    <div class="char-slot boy-slot">
+      <img class="char boy" id="boy"
+           src="img/chico-rodilla.png"
+           alt="Sp4rk ofreciendo unas rosas"
+           data-kneeling="img/chico-rodilla.png"
+           data-standing="img/chico-parado.png">
     </div>
-    <p class="subhint">Para: Estrellita ⭐</p>
 
-    <!-- MUSIC PLAYER -->
-    <div class="player" id="player">
-      <div class="turntable">
-        <div class="vinyl" id="vinyl">
-          <div class="vinyl-grooves"></div>
-          <div class="vinyl-label">💗</div>
-        </div>
-        <div class="tonearm"></div>
-      </div>
-
-      <div class="player-info">
-        <p class="track-title">Murder - Noche de los Dos 🎶</p>
-        <div class="player-controls">
-          <button class="play-btn" id="playBtn" type="button" aria-label="Reproducir o pausar">▶</button>
-          <div class="volume-wrap">
-            <span class="vol-icon" aria-hidden="true">🔈</span>
-            <input class="volume-slider" id="volumeSlider" type="range"
-                   min="0" max="100" value="55" aria-label="Volumen">
-          </div>
-        </div>
-        <p class="player-status" id="playerStatus">Cargando...</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- LETTER SCENE -->
-  <section class="scene letter-scene" id="letterScene">
-    <button class="back-btn" id="backBtn" aria-label="Cerrar carta">✕</button>
-
-    <div class="flip-wrap">
-      <div class="letter-paper" id="letterPaper">
-
-        <div class="paper-face paper-front">
-          <!-- graffiti heart sticker, drawn inline so it stays crisp.
-               Lives above the header so scrolling text passes below it. -->
-          <svg class="sticker" viewBox="0 0 110 115" aria-hidden="true">
-            <g class="sticker-motion">
-              <path d="M14 30 C10 22 12 14 19 9" />
-              <path d="M7 34 C3 25 5 16 13 10" />
-            </g>
-            <path class="sticker-heart"
-                  d="M55 100 C26 78 13 60 13 42 C13 27 25 18 37 18 C45 18 51 23 55 31
-                     C59 23 65 18 73 18 C85 18 97 27 97 42 C97 55 89 70 72 84" />
-            <g class="sticker-gloss">
-              <path d="M31 36 C35 29 44 27 50 31" />
-              <path d="M67 33 C71 28 78 28 82 32" />
-              <path d="M86 45 C87 53 84 60 80 65" />
-            </g>
-            <g class="sticker-drip">
-              <path d="M72 84 C74 92 71 97 73 104 C74 108 78 108 78 103 C78 96 80 91 78 83 Z" />
-              <circle cx="84" cy="95" r="3.2" />
-              <circle cx="62" cy="99" r="2.4" />
-            </g>
+    <div class="char-slot girl-slot">
+      <!-- heart-shaped bubble, sits above her head -->
+      <div class="bubble" id="bubble">
+        <div class="heart-wrap">
+          <svg class="bubble-heart" viewBox="0 0 200 182" aria-hidden="true">
+            <path d="M100 168 C38 122 10 88 10 57 C10 29 33 10 58 10
+                     C77 10 93 21 100 37 C107 21 123 10 142 10
+                     C167 10 190 29 190 57 C190 88 162 122 100 168 Z"/>
           </svg>
-
-          <div class="paper-header">
-            <p class="letter-line from-line">From: <b>Sp4rk</b> 🖤</p>
-            <p class="letter-line to-line">To: <b>Estrellita</b> ⭐</p>
-            <hr class="divider">
-          </div>
-
-          <div class="paper-inner">
-            <div class="letter-body" id="letterBody"></div>
-            <div class="signature" id="signature">
-              <span>Con todo mi cariño,</span>
-              <strong>Sp4rk 💝</strong>
-            </div>
-          </div>
-          <div class="floating-hearts" id="floatingHearts"></div>
-          <button class="flip-btn" id="flipBtn">Dar vuelta ↩️</button>
+          <p class="bubble-text" id="bubbleText">¿Aceptas<br>las flores?</p>
         </div>
 
-        <div class="paper-face paper-back">
-          <div class="paper-inner back-inner">
-            <button class="flip-btn flip-back" id="flipBackBtn">↩️ Volver a la carta</button>
-            <h3 class="back-title">¿Y tú qué dices? 🥺</h3>
-
-            <div class="choice-row" id="choiceRow">
-              <button class="choice-btn" type="button" data-choice="Sí 💖">Sí 💖</button>
-              <button class="choice-btn" type="button" data-choice="No">No</button>
-              <button class="choice-btn" type="button" data-choice="Necesito pensarlo 🤔">Necesito pensarlo 🤔</button>
-            </div>
-
-            <div class="explain-wrap" id="explainWrap">
-              <label for="explainText">Cuéntame más (opcional):</label>
-              <textarea id="explainText" rows="4" placeholder="Escribe aquí..."></textarea>
-              <button class="send-btn" id="sendBtn" type="button">Enviar 💌</button>
-              <p class="send-status" id="sendStatus"></p>
-            </div>
-          </div>
+        <!-- buttons live below the heart: its silhouette narrows toward the
+             point, so anything stacked inside would spill out of the shape -->
+        <div class="bubble-btns" id="bubbleBtns">
+          <button class="pix-btn accept" id="acceptBtn" type="button">Aceptar 🌹</button>
+          <button class="pix-btn reject" id="rejectBtn" type="button">Rechazar</button>
         </div>
-
       </div>
+
+      <img class="char girl" id="girl"
+           src="img/chica-parada.png"
+           alt="Estrellita"
+           data-empty="img/chica-parada.png"
+           data-flowers="img/chica-flores.png">
     </div>
 
-    <div class="dove-layer" id="doveLayer">
-      <div class="dove-rig">
-        <span class="carried-letter">💌</span>
-        <span class="dove">🕊️</span>
-      </div>
-    </div>
-  </section>
+  </div>
+
+  <!-- celebration petals / hearts land here -->
+  <div class="confetti" id="confetti"></div>
+
+  <p class="ending" id="ending"></p>
 
 </main>
 
-<!-- Audio host: YouTube's own player, kept offscreen so only the
-     turntable above is visible. Nothing is copied or re-hosted. -->
-<div class="yt-host" aria-hidden="true"><div id="ytPlayer"></div></div>
-
-<script src="https://www.youtube.com/iframe_api"></script>
-<script src="script.js?v=11"></script>
+<script src="script.js?v=1"></script>
 </body>
 </html>
