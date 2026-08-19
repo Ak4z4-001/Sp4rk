@@ -8,11 +8,19 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 
 <main class="world" id="world">
+
+  <!-- ============ MUSIC CONTROL ============ -->
+  <div class="music" id="music">
+    <button class="pix-btn music-btn" id="musicBtn" type="button"
+            aria-label="Pausar o reproducir la música">♪</button>
+    <input class="vol" id="vol" type="range" min="0" max="100" value="45"
+           aria-label="Volumen">
+  </div>
 
   <!-- ============ ANIMATED PIXEL BACKGROUND ============ -->
   <div class="sky"></div>
@@ -84,6 +92,11 @@
 
 </main>
 
-<script src="script.js?v=1"></script>
+<!-- Audio host: YouTube's own player, parked offscreen so only the little
+     control above is visible. Nothing is copied or re-hosted. -->
+<div class="yt-host" aria-hidden="true"><div id="ytPlayer"></div></div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script src="script.js?v=2"></script>
 </body>
 </html>

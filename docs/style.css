@@ -46,6 +46,69 @@ body {
   overflow: hidden;
 }
 
+/* ============ MUSIC CONTROL ============ */
+
+/* the iframe does the audio; kept offscreen but never display:none,
+   since hidden players are blocked from starting on some mobile browsers */
+.yt-host {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  left: -9999px;
+  top: 0;
+  opacity: 0.01;
+  pointer-events: none;
+}
+
+.music {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.music-btn {
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0;
+  font-size: 1.05rem;
+  line-height: 1;
+  background: #ffd7e6;
+}
+.music-btn.off { background: #c9d3e8; color: #4a5570; }
+
+.vol {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 86px;
+  height: 10px;
+  background: rgba(253, 243, 247, 0.35);
+  border: 3px solid var(--ink);
+  outline: none;
+  cursor: pointer;
+}
+.vol::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 13px;
+  height: 18px;
+  background: var(--rose);
+  border: 3px solid var(--ink);
+  cursor: pointer;
+}
+.vol::-moz-range-thumb {
+  width: 13px;
+  height: 18px;
+  border-radius: 0;
+  background: var(--rose);
+  border: 3px solid var(--ink);
+  cursor: pointer;
+}
+
 /* ============ SKY ============ */
 
 .sky {
@@ -367,6 +430,8 @@ body {
      to stay narrow enough not to run off screen */
   .bubble { width: min(48vw, 190px); }
   .bubble-text { font-size: 0.86rem; width: 78%; }
+  .music { top: 10px; left: 10px; gap: 6px; }
+  .vol { width: 64px; }
 }
 
 /* landscape phones: keep everything on screen */

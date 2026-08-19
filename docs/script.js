@@ -8,7 +8,96 @@ const rejectBtn = document.getElementById('rejectBtn');
 const confetti = document.getElementById('confetti');
 const ending = document.getElementById('ending');
 
+const musicBtn = document.getElementById('musicBtn');
+const volSlider = document.getElementById('vol');
+
+const YT_VIDEO_ID = '-mBRtC7KhzI';
+
 let answered = false;
+
+/* ============ BACKGROUND MUSIC ============ */
+
+const music = { el: null, ready: false, playing: false, userPaused: false, armed: false };
+
+function createYouTubePlayer() {
+  if (music.el) return;
+  music.el = new YT.Player('ytPlayer', {
+    videoId: YT_VIDEO_ID,
+    playerVars: {
+      autoplay: 1,
+      controls: 0,
+      playsinline: 1,   // iOS: stay inline instead of going fullscreen
+      rel: 0,
+      modestbranding: 1
+    },
+    events: {
+      onReady: () => {
+        music.el.setVolume(Number(volSlider.value));
+        music.ready = true;
+        musicBtn.disabled = false;
+        tryAutoplay();
+      },
+      onStateChange: (e) => {
+        if (e.data === YT.PlayerState.PLAYING) setMusicUI(true);
+        else if (e.data === YT.PlayerState.PAUSED) setMusicUI(false);
+        else if (e.data === YT.PlayerState.ENDED) music.el.playVideo();   // loop
+      },
+      onError: () => {
+        music.ready = false;
+        musicBtn.disabled = true;
+        musicBtn.classList.add('off');
+      }
+    }
+  });
+}
+
+// The API calls this once it loads -- but if it already finished before this
+// file ran, that call is gone for good and the song would never start. Claim
+// the hook both ways.
+window.onYouTubeIframeAPIReady = createYouTubePlayer;
+if (window.YT && window.YT.Player) createYouTubePlayer();
+
+function setMusicUI(playing) {
+  music.playing = playing;
+  musicBtn.textContent = playing ? '♪' : '✕';
+  musicBtn.classList.toggle('off', !playing);
+}
+
+// Browsers refuse audio that starts without a gesture, so: try right away,
+// and if refused, start on the first thing she touches.
+function tryAutoplay() {
+  playMusic();
+  setTimeout(() => {
+    if (!music.playing && !music.userPaused) armGestureStart();
+  }, 900);
+}
+
+function armGestureStart() {
+  if (music.armed) return;
+  music.armed = true;
+  const start = () => {
+    document.removeEventListener('pointerdown', start, true);
+    document.removeEventListener('keydown', start, true);
+    music.armed = false;
+    if (!music.userPaused) playMusic();
+  };
+  document.addEventListener('pointerdown', start, true);
+  document.addEventListener('keydown', start, true);
+}
+
+function playMusic()  { if (music.ready) music.el.playVideo(); }
+function pauseMusic() { if (music.ready) music.el.pauseVideo(); }
+
+function toggleMusic() {
+  if (music.playing) { music.userPaused = true;  pauseMusic(); }
+  else               { music.userPaused = false; playMusic(); }
+}
+
+musicBtn.disabled = true;
+musicBtn.addEventListener('click', toggleMusic);
+volSlider.addEventListener('input', (e) => {
+  if (music.ready) music.el.setVolume(Number(e.target.value));
+});
 
 /* ============ BACKGROUND: STARS ============ */
 
