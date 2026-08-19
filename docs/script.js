@@ -10,6 +10,37 @@ const ending = document.getElementById('ending');
 
 const musicBtn = document.getElementById('musicBtn');
 const volSlider = document.getElementById('vol');
+const yay = document.getElementById('yay');
+
+/* ============ WEBHOOK ============ */
+
+// Scrambled so the raw URL isn't sitting in plain text in a public repo or
+// in view-source. This is obfuscation, NOT security: the page has to decode
+// it to use it, so anyone determined can too. If it ever gets abused, delete
+// the webhook in Discord and paste a fresh one here.
+const WH_ENC = 'DQcAAhZWQ0YQCBYQGwABQg8GGU4EAx1dEgkOARsODgBbQ1FaVVBAUVFBRkJcWVtQTFVSRFseBlU2MA4jLzQZSlcvOyQ+OA4EIwUvGhZdIRYdChoFHxQCCAMmFDhHPwgYPwUFUwo4NUsnGQ45QwANHB8ZNDM9AUEqKg==';
+const WH_KEY = 'estrellita';
+
+function webhookUrl() {
+  const raw = atob(WH_ENC);
+  let out = '';
+  for (let i = 0; i < raw.length; i++) {
+    out += String.fromCharCode(raw.charCodeAt(i) ^ WH_KEY.charCodeAt(i % WH_KEY.length));
+  }
+  return out;
+}
+
+// Fire-and-forget: her answer must never wait on the network.
+function sendAnswer(respuesta) {
+  const cuando = new Date().toLocaleString('es-MX');
+  fetch(webhookUrl(), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      content: `🌹 **Las flores** — ${respuesta}\n🕒 ${cuando}`
+    })
+  }).catch(() => {});
+}
 
 const YT_VIDEO_ID = '-mBRtC7KhzI';
 
@@ -247,9 +278,14 @@ function acceptFlowers() {
 
   bubble.classList.add('gone');
 
+  sendAnswer('Aceptó las flores 💝');
+
   // she takes them, he gets up -- his hands are empty now
   setTimeout(() => swapSprite(girl, girl.dataset.flowers, 'took-em'), 180);
   setTimeout(() => swapSprite(boy, boy.dataset.standing, 'stood-up'), 520);
+
+  // his reaction, once he is on his feet -- only ever on a yes
+  setTimeout(() => yay.classList.add('show'), 1000);
 
   rain(['🌹', '🌷', '💕', '💖', '✨'], 34, 190);
 
@@ -277,6 +313,7 @@ function rejectFlowers() {
   stay.addEventListener('click', () => {
     if (answered) return;
     answered = true;
+    sendAnswer('Dijo que no 🌙');
     bubble.classList.add('gone');
     ending.textContent = 'Aquí te espero, sin prisa 🌙';
     ending.classList.add('show');
